@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="./scripts/signalr.min.js"></script>
+    <script src="./scripts/signalr.js"></script>
     <title>Vue-SignalR 聊天室示例</title>
 </head>
 <body>
@@ -27,11 +27,24 @@
     </div>
 </body>
 <script>
-var conn = new signalR.HubConnection('http://localhost:58515/signalr');
-conn.on('ReceiveMessage',function(res){
+// var conn = new signalR.HubConnection('http://localhost:58515/signalr',{
+//     useDefaultUrl: false,
+//     trasport: signalR.TransportType.WebSockets,
+//     logger: new signalR.ConsoleLogger(signalR.LogLevel.Information)
+// });
+// conn.on('receiveMessage',function(res){
     
+// });
+// conn.start();
+
+let connection =new signalR.HubConnection(new signalR.HttpConnection('http://localhost:58515/signalr', { transport: signalR.TransportType.LongPolling }));
+//let connection = new signalR.HubConnection('http://localhost:58515/signalr',{'transport':'LongPolling'});
+
+connection.on('receiveMessage', function(data){
+    //console.log(data);
 });
-conn.start();
+
+connection.start();
     
 var app = new Vue({
     el: '#chatRoom',

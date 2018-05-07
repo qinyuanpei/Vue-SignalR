@@ -40,7 +40,8 @@ namespace HubServer.Models
         {
             var clientId = Context.ConnectionId;
             var clientName = Listeners[clientId];
-            Clients.All.ReceiveMessage(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), clientName, message);
+            var msg = string.Format("{0}-{1}:{2}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), clientName, message);
+            Clients.All.ReceiveMessage(msg);
         }
 
         [HubMethodName("SendOne")]
@@ -48,8 +49,10 @@ namespace HubServer.Models
         {
             var senderName = Listeners[Context.ConnectionId];
             var recevierName = Listeners[toUserId];
-            Clients.Caller.ReceiveMessage(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), string.Format("{0}:{1}", recevierName,message));
-            Clients.Client(toUserId).ReceiveMessage(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), string.Format("{0}:{1}", senderName), message);
+            var sendMsg = string.Format("{0}-{1}:{2}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), recevierName, message);
+            var receiveMsg = string.Format("{0}-{1}:{2}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), senderName, message);
+            Clients.Caller.ReceiveMessage(sendMsg);
+            Clients.Client(toUserId).ReceiveMessage(receiveMsg);
         }
     }
 }

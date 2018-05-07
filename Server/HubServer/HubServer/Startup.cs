@@ -13,17 +13,19 @@ namespace HubServer
     {
         public void Configuration(IAppBuilder app)
         {
+            //app.UseCors(CorsOptions.AllowAll);
+            //app.MapSignalR();
             app.Map("/signalr", map =>
              {
-                //启用跨域
-                map.UseCors(CorsOptions.AllowAll);
+                 //启用跨域
+                 map.UseCors(CorsOptions.AllowAll);
 
-                //启用SignalR
-                var config = new HubConfiguration()
+                 //启用SignalR
+                 var config = new HubConfiguration()
                  {
-                     EnableJSONP = true,
-                     EnableDetailedErrors = true,
-                     EnableJavaScriptProxies = true
+                     //EnableJSONP = true,
+                     //EnableDetailedErrors = true,
+                     //EnableJavaScriptProxies = true
                  };
                  map.RunSignalR(config);
              });
