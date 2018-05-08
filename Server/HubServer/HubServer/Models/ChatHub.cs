@@ -14,13 +14,12 @@ namespace HubServer.Models
     {
         public static readonly ConcurrentDictionary<string, string> Listeners = new ConcurrentDictionary<string, string>();
 
-
         public override Task OnConnected()
         {
             var clientId = Context.ConnectionId;
             var clientName = Context.Request.QueryString["ClientName"];
             Listeners.AddOrUpdate(clientId, clientName, (k, v) => clientName);
-            var message = string.Format("{0} 用户:{1}加入聊天室", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"), clientName);
+            var message = string.Format("{0} 用户{1}:加入聊天室", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"), clientName);
             Clients.All.UserJoined(message);
             return base.OnConnected();
         }
@@ -29,8 +28,8 @@ namespace HubServer.Models
         {
             var clientId = Context.ConnectionId;
             var clientName = Context.Request.QueryString["ClientName"];
-            var message = string.Format("{0} 用户:{1}离开聊天室", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"), clientName);
-            Clients.All.UserJoined(message);
+            var message = string.Format("{0} 用户{1}:离开聊天室", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"), clientName);
+            Clients.All.UserLeaved(message);
             Listeners.TryRemove(clientId, out clientName);
             return base.OnDisconnected(stopCalled);
         }
@@ -40,17 +39,17 @@ namespace HubServer.Models
         {
             var clientId = Context.ConnectionId;
             var clientName = Listeners[clientId];
-            var msg = string.Format("{0}-{1}:{2}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), clientName, message);
+            var msg = string.Format("{0} {1}:{2}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), clientName, message);
             Clients.All.ReceiveMessage(msg);
         }
 
         [HubMethodName("SendOne")]
-        public void SendOne(string toUserId,string message)
+        public void SendOne(string toUserName,string message)
         {
             var senderName = Listeners[Context.ConnectionId];
-            var recevierName = Listeners[toUserId];
-            var sendMsg = string.Format("{0}-{1}:{2}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), recevierName, message);
-            var receiveMsg = string.Format("{0}-{1}:{2}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), senderName, message);
+            var toUserId = Listeners.FirstOrDefault(e => e.Value == toUserName).Key;
+            var sendMsg = string.Format("{0} {1}:{2}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), toUserName, message);
+            var receiveMsg = string.Format("{0} {1}:{2}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), senderName, message);
             Clients.Caller.ReceiveMessage(sendMsg);
             Clients.Client(toUserId).ReceiveMessage(receiveMsg);
         }
